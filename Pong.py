@@ -36,11 +36,18 @@ while running:
             elif event.key == pygame.K_DOWN: # if the DOWN key was pressed
                 going_up = False
                 going_down = True
+        elif event.type == pygame.KEYUP: # this will run when a key is released
+            if event.key == pygame.K_UP: # if the UP key was released
+                going_up = False # stop moving up
+            if event.key == pygame.K_DOWN: # if the DOWN key was released
+                going_down = False # stop moving down
 
     if going_up:
-        left_paddle[1] -= 4
+        if left_paddle[1] > 0: # check if at the top of screen
+            left_paddle[1] -= 4
     elif going_down:
-        left_paddle[1] += 4
+        if left_paddle[1]+paddle_size[1] < 500: # check if (the bottom left corner) is at bottom of screen
+            left_paddle[1] += 4
 
     # Draw things onto the screen
     ## Clear screen to black
