@@ -22,23 +22,22 @@ while running:
 
     # Check events
     for event in pygame.event.get():
-        # If user clicked the quit button, end loop
-        if event.type == pygame.QUIT:
-            running = False
+        if event.type == pygame.QUIT: # if user clicked the quit button
+            running = False # end loop
+        elif event.type == pygame.KEYDOWN: # this will run when a key is pressed
+            # Check WHICH key was pressed
+            if event.key == pygame.K_UP: # if the UP key was pressed
+                left_paddle[1] -= 4
+            elif event.key == pygame.K_DOWN: # if the DOWN key was pressed
+                left_paddle[1] += 4
 
     # Process user input
     # TODO
 
     # Draw things onto the screen
-    # TODO
+    ## Clear screen to black
     screen.fill(BLACK)
-
-    # Add 1 to Y coordinate
-    left_paddle[1] += 1
-    if left_paddle[1] > 100:
-        left_paddle[1] = 50
-
-    # Draw the (left) paddle
+    ## Draw the (left) paddle
     pygame.draw.rect(screen, WHITE, [left_paddle[0], left_paddle[1], paddle_size[0], paddle_size[1]])
 
     # Update screen
