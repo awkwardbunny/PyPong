@@ -1,4 +1,5 @@
 import pygame
+
 pygame.init()
 
 # Create screen
@@ -17,6 +18,9 @@ WHITE = (255, 255, 255)
 paddle_size = [30, 70]
 left_paddle = [30, 50]
 
+going_up = False
+going_down = False
+
 running = True
 while running:
 
@@ -27,12 +31,16 @@ while running:
         elif event.type == pygame.KEYDOWN: # this will run when a key is pressed
             # Check WHICH key was pressed
             if event.key == pygame.K_UP: # if the UP key was pressed
-                left_paddle[1] -= 4
+                going_up = True
+                going_down = False
             elif event.key == pygame.K_DOWN: # if the DOWN key was pressed
-                left_paddle[1] += 4
+                going_up = False
+                going_down = True
 
-    # Process user input
-    # TODO
+    if going_up:
+        left_paddle[1] -= 4
+    elif going_down:
+        left_paddle[1] += 4
 
     # Draw things onto the screen
     ## Clear screen to black
