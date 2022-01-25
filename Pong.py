@@ -20,6 +20,9 @@ paddle_size = [20, 90]
 left_paddle = [30, 50]
 right_paddle = [750, 50]
 
+pong = [400, 250]
+pong_size = [24, 24]
+
 going_up = False
 going_down = False
 
@@ -55,13 +58,24 @@ while running:
         if left_paddle[1] + paddle_size[1] < 500:  # check if (the bottom left corner) is at bottom of screen
             left_paddle[1] += 4
 
+    '''
     # Draw things onto the screen
+    ## pygram.draw.rect takes 3 arguments:
+    ## -> screen: on WHAT to draw the rectangle on
+    ## -> color: what color to draw in
+    ## -> [x, y, width, height]
+    '''
     # Clear screen to black
     screen.fill(BLACK)
     # Draw the (right) paddle
     pygame.draw.rect(screen, GRAY, [right_paddle[0], right_paddle[1], paddle_size[0], paddle_size[1]])
     # Draw the (left) paddle
     pygame.draw.rect(screen, GRAY, [left_paddle[0], left_paddle[1], paddle_size[0], paddle_size[1]])
+    # Draw dotted line down the middle
+    for y in range(0, screen_size[1], 40):
+        pygame.draw.rect(screen, GRAY, [395, y, 10, 20])
+    # Draw pong
+    pygame.draw.rect(screen, GRAY, [pong[0], pong[1], pong_size[0], pong_size[1]])
 
     # Update screen
     pygame.display.flip()
