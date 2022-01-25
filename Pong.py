@@ -22,6 +22,7 @@ right_paddle = [750, 50]
 
 pong = [400, 250]
 pong_size = [24, 24]
+direction = (1, 1)
 
 going_up = False
 going_down = False
@@ -47,16 +48,27 @@ while running:
             if event.key == pygame.K_DOWN:  # if the DOWN key was released
                 going_down = False  # stop moving down
 
+    '''
+    # Do calculations/process movements
+    '''
+
+    # Move paddle(s)
+    paddle_speed = 5
     if going_up:
         if right_paddle[1] > 0:  # check if at the top of screen
-            right_paddle[1] -= 4
+            right_paddle[1] -= paddle_speed
         if left_paddle[1] > 0:  # check if at the top of screen
-            left_paddle[1] -= 4
+            left_paddle[1] -= paddle_speed
     elif going_down:
         if right_paddle[1] + paddle_size[1] < 500:  # check if (the bottom left corner) is at bottom of screen
-            right_paddle[1] += 4
+            right_paddle[1] += paddle_speed
         if left_paddle[1] + paddle_size[1] < 500:  # check if (the bottom left corner) is at bottom of screen
-            left_paddle[1] += 4
+            left_paddle[1] += paddle_speed
+
+    # Move pong
+    dir_x, dir_y = direction
+    pong[0] += dir_x * 2
+    pong[1] += dir_y * 2
 
     '''
     # Draw things onto the screen
