@@ -51,7 +51,7 @@ while running:
     '''
     # Do calculations/process movements
     '''
-
+    # TODO: Left and right paddles move separately
     # Move paddle(s)
     paddle_speed = 5
     if going_up:
@@ -67,6 +67,23 @@ while running:
 
     # Move pong
     dir_x, dir_y = direction
+
+    # Check Y
+    if pong[1] <= 0:  # if pong is touching top
+        dir_y = 1  # flip the y direction
+    elif pong[1]+pong_size[1] >= screen_size[1]:  # if pong is touching bottom
+        dir_y = -1  # flip the y direction
+
+    # TODO: Collision detection between the PONG and the paddles
+    # Check X
+    if pong[0] <= 0:  # if pong is touching left
+        dir_x = 1  # flip the x direction # TODO: Update scores
+    elif pong[0]+pong_size[0] >= screen_size[0]:  # if pong is touching right
+        dir_x = -1  # flip the x direction # TODO: Update scores
+
+    direction = (dir_x, dir_y)
+
+    # Update position of pong
     pong[0] += dir_x * 2
     pong[1] += dir_y * 2
 
@@ -88,6 +105,7 @@ while running:
         pygame.draw.rect(screen, GRAY, [395, y, 10, 20])
     # Draw pong
     pygame.draw.rect(screen, GRAY, [pong[0], pong[1], pong_size[0], pong_size[1]])
+    # TODO: Display score
 
     # Update screen
     pygame.display.flip()
