@@ -54,7 +54,7 @@ while running:
     '''
     # TODO: Left and right paddles move separately
     # Move paddle(s)
-    paddle_speed = 5
+    paddle_speed = 10
     if going_up:
         if right_paddle[1] > 0:  # check if at the top of screen
             right_paddle[1] -= paddle_speed
@@ -84,16 +84,16 @@ while running:
         pong = [400, 250]
 
     # Collision detection between the PONG and the paddles
-    if pong[0] <= left_paddle[0]+paddle_size[0] and left_paddle[1] - pong_size[1] < pong[1] < left_paddle[1] + paddle_size[1]:
+    if left_paddle[0] - 10 < pong[0] < left_paddle[0]+paddle_size[0] and left_paddle[1] - pong_size[1] < pong[1] < left_paddle[1] + paddle_size[1]:
         dir_x = 1
-    elif pong[0] + pong_size[0] >= right_paddle[0] and right_paddle[1] - pong_size[1] < pong[1] < right_paddle[1] + paddle_size[1]:
+    elif right_paddle[0] + 10 > pong[0] + pong_size[0] > right_paddle[0] and right_paddle[1] - pong_size[1] < pong[1] < right_paddle[1] + paddle_size[1]:
         dir_x = -1
 
     direction = (dir_x, dir_y)
 
     # Update position of pong
-    pong[0] += dir_x * 2
-    pong[1] += dir_y * 2
+    pong[0] += dir_x * 5
+    pong[1] += dir_y * 5
 
     '''
     # Draw things onto the screen
