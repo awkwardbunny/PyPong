@@ -23,6 +23,7 @@ right_paddle = [750, 50]
 pong = [400, 250]
 pong_size = [24, 24]
 direction = (1, 1)
+scores = [0, 0]
 
 going_up = False
 going_down = False
@@ -74,12 +75,19 @@ while running:
     elif pong[1]+pong_size[1] >= screen_size[1]:  # if pong is touching bottom
         dir_y = -1  # flip the y direction
 
-    # TODO: Collision detection between the PONG and the paddles
     # Check X
     if pong[0] <= 0:  # if pong is touching left
-        dir_x = 1  # flip the x direction # TODO: Update scores
+        scores[1] += 1
+        pong = [400, 250]
     elif pong[0]+pong_size[0] >= screen_size[0]:  # if pong is touching right
-        dir_x = -1  # flip the x direction # TODO: Update scores
+        scores[0] += 1
+        pong = [400, 250]
+
+    # Collision detection between the PONG and the paddles
+    if pong[0] <= left_paddle[0]+paddle_size[0] and left_paddle[1] - pong_size[1] < pong[1] < left_paddle[1] + paddle_size[1]:
+        dir_x = 1
+    elif pong[0] + pong_size[0] >= right_paddle[0] and right_paddle[1] - pong_size[1] < pong[1] < right_paddle[1] + paddle_size[1]:
+        dir_x = -1
 
     direction = (dir_x, dir_y)
 
@@ -105,7 +113,14 @@ while running:
         pygame.draw.rect(screen, GRAY, [395, y, 10, 20])
     # Draw pong
     pygame.draw.rect(screen, GRAY, [pong[0], pong[1], pong_size[0], pong_size[1]])
-    # TODO: Display score
+
+    # Display score
+    pygame.font.init()
+    myfont = pygame.font.SysFont("Arial", 40)
+    left_score = myfont.render(str(scores[0]), False, GRAY)
+    right_score = myfont.render(str(scores[1]), False, GRAY)
+    screen.blit(left_score, (340, 40))
+    screen.blit(right_score, (440, 40))
 
     # Update screen
     pygame.display.flip()
