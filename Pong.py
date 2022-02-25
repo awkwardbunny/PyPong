@@ -58,7 +58,7 @@ class Pong:
                  title: str = "Pong v2",
                  ):
         self.dimension: Coord = dimension
-        self.foreground_color = Color(200, 200, 200)
+        self.foreground_color = Color(180, 180, 180)
         self.background_color = Color(0, 0, 0)
         self.title = title
 
