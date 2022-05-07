@@ -28,15 +28,21 @@ class Paddle:
     def __init__(self,
                  color: Color,
                  position: Coord,
+                 max_y: int,
                  size: Coord = Coord(20, 90)
                  ):
         self.color = color
         self.position = position
         self.size = size
         self.speed = 0
+        self.max_y = max_y
 
     def move_relative(self, offset: Coord):
         self.position.add(offset)
+        if self.position.y < 0:
+            self.position.y = 0
+        elif self.position.y + self.size.y > self.max_y:
+            self.position.y = self.max_y - self.size.y
 
     def move_absolute(self, new_position: Coord):
         self.position = new_position
@@ -48,7 +54,6 @@ class Paddle:
         self.speed = speed
 
     def update(self):
-        # TODO: Limit check y
         self.move_relative(Coord(0, self.speed))
 
 
@@ -62,12 +67,18 @@ class Pong:
         self.background_color = Color(0, 0, 0)
         self.title = title
 
-        self.paddle_speed = 10
+        self.paddle_speed = 5
         self.pong_speed = 5
 
         # Create our paddles
-        self.l_paddle = Paddle(self.foreground_color, Coord(30, 50))
-        self.r_paddle = Paddle(self.foreground_color, Coord(750, 50))
+        self.l_paddle = Paddle(self.foreground_color, Coord(30, 50), self.dimension.y)
+        self.r_paddle = Paddle(self.foreground_color, Coord(750, 50), self.dimension.y)
+
+        # Calculate middle of screen
+        middle = self.dimension.y / 2
+        half_height = self.l_paddle.size.y / 2 # Assuming both paddles are same size
+        self.l_paddle.position.y = middle - half_height
+        self.r_paddle.position.y = middle - half_height
 
         # TODO: Create our pong
         # TODO: Keep track of score
@@ -121,13 +132,13 @@ class Pong:
             # Check user inputs
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    self.r_paddle.set_speed(-5)
+                    self.r_paddle.set_speed(-1 * self.paddle_speed)
                 elif event.key == pygame.K_DOWN:
-                    self.r_paddle.set_speed(5)
+                    self.r_paddle.set_speed(self.paddle_speed)
                 elif event.key == pygame.K_w:
-                    self.l_paddle.set_speed(-5)
+                    self.l_paddle.set_speed(-1 * self.paddle_speed)
                 elif event.key == pygame.K_s:
-                    self.l_paddle.set_speed(5)
+                    self.l_paddle.set_speed(self.paddle_speed)
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
                     self.r_paddle.set_speed(0)
