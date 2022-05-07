@@ -1,3 +1,5 @@
+import math
+import random
 import pygame
 
 
@@ -13,6 +15,11 @@ class Coord:
         self.x += other.x
         self.y += other.y
 
+    def normalize(self, max):
+        magnitude = math.sqrt(self.x ** 2 + self.y ** 2)
+        self.x *= max / magnitude
+        self.y *= max / magnitude
+
 
 class Color:
     def __init__(self, r: int, g: int, b: int):
@@ -22,6 +29,42 @@ class Color:
 
     def get_tuple(self):
         return self.r, self.g, self.b
+
+
+class Ball:
+    def __init__(self,
+                 color: Color,
+                 position: Coord,
+                 screen_size: Coord,
+                 size: Coord = Coord(10, 10)
+                 ):
+        self.color = color
+        self.position = position
+        self.size = size
+        self.max_speed = 5
+        self.screen_size = screen_size
+
+        self.speed = Coord(random.randint(-100, 100), random.randint(-100, 100))
+        self.speed.normalize(self.max_speed)
+
+    def bounce_x(self):
+        self.speed.x = -1 * self.speed.x
+
+    def bounce_y(self):
+        self.speed.y = -1 * self.speed.y
+
+    def move_relative(self, offset: Coord):
+        self.position.add(offset)
+        if self.position.y <= 0 or self.position.y + self.size.y >= self.screen_size.y:
+            self.bounce_y()
+        elif self.position.x <= 0 or self.position.x + self.size.x >= self.screen_size.x:
+            self.bounce_x()
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color.get_tuple(), [self.position.x, self.position.y, self.size.x, self.size.y])
+
+    def update(self):
+        self.move_relative(self.speed)
 
 
 class Paddle:
@@ -80,7 +123,14 @@ class Pong:
         self.l_paddle.position.y = middle - half_height
         self.r_paddle.position.y = middle - half_height
 
-        # TODO: Create our pong
+        middle_y = self.dimension.y / 2
+        middle_x = self.dimension.x / 2
+        ball_size = Coord(20, 20)
+        ball_position = Coord(middle_x - 10, middle_y - 10)
+
+        # Create our pong (Ball)
+        self.pong = Ball(self.foreground_color, ball_position, self.dimension, ball_size)
+
         # TODO: Keep track of score
 
         self.screen = None
@@ -111,16 +161,25 @@ class Pong:
         self.l_paddle.draw(self.screen)  # Draw left paddle
         self.r_paddle.draw(self.screen)  # Draw right paddle
 
+        self.pong.draw(self.screen)
+
         # TODO: Draw center line
-        # TODO: Draw pong
         # TODO: Draw score
         pygame.display.flip()
 
     def update(self):
         self.l_paddle.update()  # Update left paddle position
         self.r_paddle.update()  # Update right paddle position
+        self.pong.update()
 
-        # TODO: Update pong
+        # TODO: Check pong/paddle collisions
+        # ppos = self.pong.position
+        # lpos = self.l_paddle.position
+        # rpos = self.r_paddle.position
+        #
+        # if lpos.x + self.l_paddle.size.x <= ppos.x and (ppos.y > lpos.y and ppos.y + self.pong.size.y < self.l_paddle.size.y + lpos.y):
+        #     self.pong.bounce_y()
+
         # TODO: Update score
 
     def process_inputs(self):
@@ -139,6 +198,8 @@ class Pong:
                     self.l_paddle.set_speed(-1 * self.paddle_speed)
                 elif event.key == pygame.K_s:
                     self.l_paddle.set_speed(self.paddle_speed)
+                elif event.key == pygame.K_q:
+                    self.running = False
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
                     self.r_paddle.set_speed(0)
