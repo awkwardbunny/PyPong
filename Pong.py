@@ -3,6 +3,30 @@ import random
 import pygame
 
 
+class Rect:
+    def __init__(self, sx, sy, ex, ey):
+        self.sx = sx
+        self.sy = sy
+        self.ex = ex
+        self.ey = ey
+
+
+def is_colling(first: Rect, second: Rect) -> bool:
+    dx1 = first.sx - second.ex  # + if first box is to the right of second box
+    dx2 = second.sx - first.ex  # + if first box is to the left of second box
+    dy1 = first.sy - second.ey  # + if first box is to the below of second box
+    dy2 = second.sy - first.ey  # + if first box is to the above of second box
+
+    # print(dx1, dx2, dy1, dy2)
+
+    if dx1 > 0 or dx2 > 0:
+        return False
+
+    if dy1 > 0 or dy2 > 0:
+        return False
+    return True
+
+
 class Coord:
     def __init__(self, x, y):
         self.x = x
@@ -21,6 +45,12 @@ class Coord:
         self.y *= max / magnitude
 
 
+def add_coords(a: Coord, b: Coord):
+    sum = Coord(a.x, a.y)
+    sum.add(b)
+    return sum
+
+
 class Color:
     def __init__(self, r: int, g: int, b: int):
         self.r = r
@@ -35,14 +65,13 @@ class Ball:
     def __init__(self,
                  color: Color,
                  position: Coord,
-                 screen_size: Coord,
                  size: Coord = Coord(10, 10)
                  ):
         self.color = color
         self.position = position
+        self.starting_pos = Coord(position.x, position.y)
         self.size = size
         self.max_speed = 5
-        self.screen_size = screen_size
 
         self.speed = Coord(random.randint(-100, 100), random.randint(-100, 100))
         self.speed.normalize(self.max_speed)
@@ -55,16 +84,19 @@ class Ball:
 
     def move_relative(self, offset: Coord):
         self.position.add(offset)
-        if self.position.y <= 0 or self.position.y + self.size.y >= self.screen_size.y:
-            self.bounce_y()
-        elif self.position.x <= 0 or self.position.x + self.size.x >= self.screen_size.x:
-            self.bounce_x()
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color.get_tuple(), [self.position.x, self.position.y, self.size.x, self.size.y])
 
+    def get_bounds(self) -> Rect:
+        end = add_coords(self.position, self.size)
+        return Rect(self.position.x, self.position.y, end.x, end.y)
+
     def update(self):
         self.move_relative(self.speed)
+
+    def reset(self):
+        self.position = Coord(self.starting_pos.x, self.starting_pos.y)
 
 
 class Paddle:
@@ -95,6 +127,10 @@ class Paddle:
 
     def set_speed(self, speed: int):
         self.speed = speed
+
+    def get_bounds(self) -> Rect:
+        end = add_coords(self.position, self.size)
+        return Rect(self.position.x, self.position.y, end.x, end.y)
 
     def update(self):
         self.move_relative(Coord(0, self.speed))
@@ -129,9 +165,11 @@ class Pong:
         ball_position = Coord(middle_x - 10, middle_y - 10)
 
         # Create our pong (Ball)
-        self.pong = Ball(self.foreground_color, ball_position, self.dimension, ball_size)
+        self.pong = Ball(self.foreground_color, ball_position, ball_size)
 
-        # TODO: Keep track of score
+        # Keep track of score
+        self.l_score = 0
+        self.r_score = 0
 
         self.screen = None
         self.clock = None
@@ -172,15 +210,38 @@ class Pong:
         self.r_paddle.update()  # Update right paddle position
         self.pong.update()
 
-        # TODO: Check pong/paddle collisions
-        # ppos = self.pong.position
-        # lpos = self.l_paddle.position
-        # rpos = self.r_paddle.position
-        #
-        # if lpos.x + self.l_paddle.size.x <= ppos.x and (ppos.y > lpos.y and ppos.y + self.pong.size.y < self.l_paddle.size.y + lpos.y):
-        #     self.pong.bounce_y()
+        # Check pong/paddle collisions
+        if is_colling(self.pong.get_bounds(), self.l_paddle.get_bounds()) and self.pong.speed.x < 0:
+            print("Collided with left paddle")
+            self.pong.bounce_x()
+        if is_colling(self.pong.get_bounds(), self.r_paddle.get_bounds()) and self.pong.speed.x > 0:
+            print("Collided with right paddle")
+            self.pong.bounce_x()
 
-        # TODO: Update score
+        # Check pong/window collisions (up and down)
+        top_bound = Rect(-10, -10, self.dimension.x + 10, 0)
+        bottom_bound = Rect(-10, self.dimension.y + 10, self.dimension.x + 10, self.dimension.y + 10)
+        if is_colling(self.pong.get_bounds(), top_bound) and self.pong.speed.y < 0:
+            print("Collided with top")
+            self.pong.bounce_y()
+        if is_colling(self.pong.get_bounds(), bottom_bound) and self.pong.speed.y > 0:
+            print("Collided with bottom")
+            self.pong.bounce_y()
+
+        # Check pong/window collisions (left and right)
+        left_bound = Rect(-10, -10, 0, self.dimension.y + 10)
+        right_bound = Rect(self.dimension.x, -10, self.dimension.x + 10, self.dimension.y + 10)
+        if is_colling(self.pong.get_bounds(), left_bound) and self.pong.speed.x < 0:
+            print("Collided with left")
+            self.r_score += 1
+            print(f"Score is {self.l_score}:{self.r_score}")
+            self.pong.reset()
+
+        if is_colling(self.pong.get_bounds(), right_bound) and self.pong.speed.x > 0:
+            print("Collided with right")
+            self.l_score += 1
+            print(f"Score is {self.l_score}:{self.r_score}")
+            self.pong.reset()
 
     def process_inputs(self):
         # Check events
