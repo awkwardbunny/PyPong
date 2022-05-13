@@ -174,13 +174,16 @@ class Pong:
         self.screen = None
         self.clock = None
         self.running = False
+        self.font = None
 
     # Initialize pygame and start game loop
     def start(self):
         pygame.init()
+        pygame.font.init()
         pygame.display.set_caption(self.title)
         self.screen = pygame.display.set_mode(self.dimension.get_tuple())
         self.clock = pygame.time.Clock()
+        self.font = pygame.font.SysFont("Arial", 40)
 
         self.running = True
         while self.running:
@@ -201,8 +204,16 @@ class Pong:
 
         self.pong.draw(self.screen)
 
-        # TODO: Draw center line
-        # TODO: Draw score
+        # Draw center line
+        for y in range(0, self.dimension.y, 40):
+            pygame.draw.rect(self.screen, self.foreground_color.get_tuple(), [self.dimension.x/2 - 2, y, 4, 20])
+
+        # Draw score
+        left_score = self.font.render(str(self.l_score), False, self.foreground_color.get_tuple())
+        right_score = self.font.render(str(self.r_score), False, self.foreground_color.get_tuple())
+        self.screen.blit(left_score, (340, 40))
+        self.screen.blit(right_score, (440, 40))
+
         pygame.display.flip()
 
     def update(self):
